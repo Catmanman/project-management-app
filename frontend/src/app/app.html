@@ -1,0 +1,48 @@
+<!-- Navigation bar themed with a rich wood tone.  The background and
+     border colors reinforce the natural palette, and text is kept light
+     for contrast. -->
+<nav class="navbar navbar-expand-lg navbar-light mb-4" style="background-color:#8c6d4a; border-bottom:1px solid #7a5b3c;">
+  <div class="container-fluid">
+    <a class="navbar-brand" routerLink="/" style="color:#ffffff; font-weight:bold;">PM App</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0" *ngIf="isLoggedIn()">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/projects" routerLinkActive="active" style="color:#f5f1e6;">Projects</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/materials" routerLinkActive="active" style="color:#f5f1e6;">Materials</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/account/delete" routerLinkActive="fw-bold">Account</a>
+        </li>
+      </ul>
+      <ul class="navbar-nav ms-auto" *ngIf="!isLoggedIn()">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/login" routerLinkActive="active" style="color:#f5f1e6;">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/register" routerLinkActive="active" style="color:#f5f1e6;">Register</a>
+        </li>
+         
+        
+
+      </ul>
+      <ul class="navbar-nav ms-auto" *ngIf="isLoggedIn()">
+        <li class="nav-item">
+          <!-- Logout button styled to match the rest of the wooden palette. -->
+          <button class="btn btn-outline-secondary" (click)="logout()" style="background-color:#6f4e37; border-color:#6f4e37; color:#ffffff;">
+            Logout
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Main content area set against a parchment‑like panel with soft shadows. -->
+<div class="container" style="background-color:#fdf7f2; border-radius:8px; padding:1rem; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+  <router-outlet></router-outlet>
+</div>

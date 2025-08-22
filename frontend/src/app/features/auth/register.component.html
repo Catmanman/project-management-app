@@ -1,0 +1,38 @@
+<div class="row justify-content-center">
+  <div class="col-md-6">
+<!-- Card styled with gentle beige tones and a subtle border to complement the wood palette. -->
+<div class="card" style="border:1px solid #d1bfa4; background-color:#fdf7f2; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+      <div class="card-header" style="background-color:#8c6d4a; color:#ffffff; font-weight:bold;">Register</div>
+      <div class="card-body" style="background-color:#fdf7f2;">
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input
+              id="username"
+              type="text"
+              class="form-control"
+              formControlName="username"
+              [class.is-invalid]="form.controls['username'].invalid && form.controls['username'].touched"
+            />
+            <div class="invalid-feedback">Username is required</div>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input
+              id="password"
+              type="password"
+              class="form-control"
+              formControlName="password"
+              [class.is-invalid]="form.controls['password'].invalid && form.controls['password'].touched"
+            />
+            <div class="invalid-feedback">Password is required</div>
+          </div>
+          <button type="submit" class="btn btn-primary" [disabled]="loading" style="background-color:#6f4e37; border-color:#6f4e37; color:#ffffff;">Register</button>
+          <span *ngIf="loading" class="ms-2 spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          <div class="mt-3 text-danger" *ngIf="error">{{ error }}</div>
+        </form>
+        <p class="mt-3" style="color:#4b3a2c;">Already have an account? <a routerLink="/login" style="color:#6f4e37; text-decoration:underline;">Login</a></p>
+      </div>
+    </div>
+  </div>
+</div>

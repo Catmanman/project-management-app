@@ -1,0 +1,114 @@
+<div class="row">
+  <div class="col-12 mb-3">
+    <!-- Back button styled to blend with the wood palette -->
+    <button class="btn btn-link p-0" (click)="back()" style="color:#6f4e37; text-decoration:none;">&laquo; Back to Projects</button>
+  </div>
+
+  <div class="col-lg-7">
+    <h3 class="mb-3" style="color:#4b3a2c; font-weight:600;">Project Details</h3>
+
+    <div *ngIf="project; else loadingTpl">
+      <div class="card mb-3" style="border:1px solid #d1bfa4; background-color:#fdf7f2; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+        <div class="card-body" style="background-color:#fdf7f2;">
+          <h5 class="card-title mb-2" style="color:#4b3a2c; font-weight:600;">{{ project?.name }}</h5>
+          <p class="card-text" style="color:#5b4332;">{{ project?.description }}</p>
+          <div class="row small text-muted">
+            <div class="col">
+              <b>Created:</b> {{ project?.createdAt | date:'short' }}
+            </div>
+            <div class="col">
+              <b>Estimated End:</b>
+              {{ project?.estimatedEnd ? (project?.estimatedEnd | date:'short') : '-' }}
+            </div>
+            <div class="col">
+              <b>Finished:</b>
+              {{ project?.finishedAt ? (project?.finishedAt | date:'short') : '-' }}
+            </div>
+          </div>
+
+          <!-- Inline edit form for estimated end date and finished status -->
+          <form [formGroup]="editForm" (ngSubmit)="saveProject()" class="mt-3">
+            <div class="mb-3">
+              <label class="form-label" style="color:#4b3a2c;">Estimated End</label>
+              <!-- Use a date picker (calendar) for selecting the estimated end date -->
+              <input type="date" class="form-control" formControlName="estimatedEnd"
+                     style="background-color:#fffaf4; border-color:#d1bfa4; color:#4b3a2c;" />
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="finishedCheck"
+                     formControlName="finished" />
+              <label class="form-check-label" for="finishedCheck" style="color:#4b3a2c;">Finished</label>
+            </div>
+            <button class="btn btn-secondary" type="submit"
+                    [disabled]="editForm.invalid || loading"
+                    style="background-color:#6f4e37; border-color:#6f4e37; color:#ffffff;">
+              Save Changes
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <h4 style="color:#4b3a2c; font-weight:600;">Materials</h4>
+      <table class="table table-striped" *ngIf="items.length; else emptyTpl"
+             style="background-color:#fdf7f2; border:1px solid #d1bfa4;">
+        <thead style="background-color:#e8dcc8; color:#4b3a2c;">
+          <tr>
+            <th>Name</th>
+            <th>Market ID</th>
+            <th class="text-end">Amount</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of items">
+            <td>{{ row.materialName }}</td>
+            <td>{{ row.marketId }}</td>
+            <td class="text-end">{{ row.amount }}</td>
+            <td class="text-end">
+              <!-- Delete button tinted with a warm brick tone -->
+              <button class="btn btn-sm btn-danger" (click)="remove(row.id)"
+                      style="background-color:#b7410e; border-color:#a6360a; color:#ffffff;">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #loadingTpl>
+      <p class="text-muted">Loading project…</p>
+    </ng-template>
+
+    <ng-template #emptyTpl>
+      <p class="text-muted">No materials added yet.</p>
+    </ng-template>
+  </div>
+
+  <div class="col-lg-5" style="background-color:#fdf7f2; border:1px solid #d1bfa4; border-radius:8px; padding:1rem; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+    <h3 class="mb-3" style="color:#4b3a2c; font-weight:600;">Add / Update Material</h3>
+    <form [formGroup]="form" (ngSubmit)="add()">
+      <!-- A searchable material selector implemented via an input + datalist.  Users
+           can type to filter the list and pick a material from the suggestions.
+           Once selected, onMaterialSelectChange updates the form control with
+           the material id. -->
+      <div class="mb-3">
+        <label class="form-label" style="color:#4b3a2c;">Material</label>
+        <input type="text" class="form-control" placeholder="Search and select material…"
+               list="materialsList"
+               (input)="onMaterialSelectChange($event.target.value)"
+               (change)="onMaterialSelectChange($event.target.value)"
+               style="background-color:#fffaf4; border-color:#d1bfa4; color:#4b3a2c;" />
+        <datalist id="materialsList">
+          <option *ngFor="let m of materials" [value]="formatMaterialOption(m)"></option>
+        </datalist>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" style="color:#4b3a2c;">Amount</label>
+        <input type="number" class="form-control" formControlName="amount" min="1"
+               style="background-color:#fffaf4; border-color:#d1bfa4; color:#4b3a2c;"/>
+      </div>
+      <button class="btn btn-primary" type="submit" [disabled]="loading"
+              style="background-color:#6f4e37; border-color:#6f4e37; color:#ffffff;">Add / Update</button>
+      <span *ngIf="loading" class="ms-2 spinner-border spinner-border-sm" role="status"></span>
+    </form>
+  </div>
+</div>

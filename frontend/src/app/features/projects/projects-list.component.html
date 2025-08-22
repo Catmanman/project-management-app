@@ -1,0 +1,114 @@
+<div class="row">
+  <div class="col-md-8">
+    <h2 style="color:#4b3a2c; font-weight:600;">Projects</h2>
+    <div *ngIf="items.length > 0; else noProjects">
+      <div class="row">
+        <div class="col-md-6 mb-4" *ngFor="let project of items">
+          <div
+            class="card shadow-sm rounded-3"
+            style="
+              position: relative;
+              overflow: hidden;
+              border-radius: 14px;
+              border: 1px solid rgba(107, 68, 31, 0.35);
+              box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+              color: #2b2117;
+
+              /* WOOD TEXTURE */
+              background-image:
+                /* subtle warm glaze */
+                linear-gradient(180deg, rgba(255,240,210,0.25), rgba(128,74,28,0.08)),
+                url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAACt8S7OAAAAsUlEQVR4nO3QQQkCMQwFwXvZp2D0G6hWwqv0pVJzJB3Jxj1Gg1h4l7BzEJ8E8H5w2Nqv0kW3nM1v8t7YcCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHk2W2cQ5+7X2g9pTQ3q8rY2W0H9y2gq2K7i3t4mM1vQ3w5x7Vw1Vtq0b5m7x3y2eZ7q4dI2m5yqS3zG5K2S1k8G0c5NIcV3J2o2a2q5yJkPVKzj5i8E6hVYw0kF1b4r7z3n8Q5M2gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB+OQ0o0N0Qe8kAAAAASUVORK5CYII=');
+              background-repeat: repeat;
+              background-size: 256px 256px; /* tile size */
+              background-position: 0 0;
+              transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+            "
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.16)'; this.style.borderColor='rgba(107,68,31,0.55)';"
+            onmouseout="this.style.transform=''; this.style.boxShadow='0 8px 18px rgba(0,0,0,0.12)'; this.style.borderColor='rgba(107,68,31,0.35)';"
+          >
+            <!-- inner frosted layer for readability -->
+            <div
+              class="card-body"
+              style="
+                background: linear-gradient(180deg, rgba(255,255,255,0.65), rgba(255,255,255,0.45));
+                backdrop-filter: blur(1px);
+                border-radius: 12px;
+                padding: 1rem 1.1rem;
+              "
+            >
+              <h5 class="card-title" style="font-weight:700; letter-spacing:.2px; color:#3a2a20; margin-bottom:.35rem;">
+                {{ project.name }}
+              </h5>
+
+              <p class="card-text" style="color:#4b3a2c; margin-bottom:.75rem;">
+                {{ project.description }}
+              </p>
+
+              <ul class="list-unstyled mb-3" style="margin-bottom: .9rem;">
+                <li><strong style="color:#2d2016;">Created:</strong> {{ project.createdAt | date:'short' }}</li>
+                <li><strong style="color:#2d2016;">Estimated End:</strong> {{ project.estimatedEnd ? (project.estimatedEnd | date:'short') : '-' }}</li>
+                <li><strong style="color:#2d2016;">Finished:</strong> {{ project.finishedAt ? (project.finishedAt | date:'short') : '-' }}</li>
+              </ul>
+
+              <button
+                class="btn btn-sm me-2"
+                style="
+                  background-color:#6f4e37; border-color:#6f4e37; color:#fff;
+                  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+                "
+                (click)="view(project.id)"
+              >
+                Edit
+              </button>
+
+              <button
+                class="btn btn-sm"
+                style="
+                  background-color:#b7410e; border-color:#a6360a; color:#fff;
+                  box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+                "
+                (click)="remove(project.id)"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noProjects>
+      <p>No projects yet.</p>
+    </ng-template>
+  </div>
+
+  <div class="col-md-4" style="background-color:#fdf7f2; border:1px solid #d1bfa4; border-radius:8px; padding:1rem; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+    <h2 style="color:#4b3a2c; font-weight:600;">Add New Project</h2>
+    <form [formGroup]="form" (ngSubmit)="add()">
+      <div class="mb-3">
+        <label class="form-label" style="color:#4b3a2c;">Name</label>
+        <input type="text" class="form-control" formControlName="name"
+               style="background-color:#fffaf4; border-color:#d1bfa4; color:#4b3a2c;" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label" style="color:#4b3a2c;">Description</label>
+        <textarea class="form-control" rows="3" formControlName="description"
+                  style="background-color:#fffaf4; border-color:#d1bfa4; color:#4b3a2c;"></textarea>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" style="color:#4b3a2c;">Estimated End</label>
+        <input type="datetime-local" class="form-control" formControlName="estimatedEnd"
+               style="background-color:#fffaf4; border-color:#d1bfa4; color:#4b3a2c;" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label" style="color:#4b3a2c;">Finished At</label>
+        <input type="datetime-local" class="form-control" formControlName="finishedAt"
+               style="background-color:#fffaf4; border-color:#d1bfa4; color:#4b3a2c;" />
+      </div>
+      <button type="submit" class="btn btn-primary" [disabled]="loading"
+              style="background-color:#6f4e37; border-color:#6f4e37; color:#ffffff;">Add Project</button>
+      <span *ngIf="loading" class="ms-2 spinner-border spinner-border-sm" role="status"></span>
+    </form>
+  </div>
+</div>

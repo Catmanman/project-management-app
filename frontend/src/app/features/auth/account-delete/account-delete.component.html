@@ -1,0 +1,106 @@
+<div class="container my-4" style="max-width: 760px;">
+  <a routerLink="/" class="text-decoration-none">&larr; Back</a>
+
+  <h1 class="mt-2">Account Settings</h1>
+  <p class="text-muted">Manage your account details. Actions may require re-authentication.</p>
+
+  <!-- alerts -->
+  <div *ngIf="message()" class="alert alert-success my-3">{{ message() }}</div>
+  <div *ngIf="error()" class="alert alert-danger my-3">{{ error() }}</div>
+
+  <!-- Change username -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Change username</h5>
+
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <label class="form-label">Current password</label>
+          <input type="password" class="form-control"
+                 [formControl]="usernameForm.controls.currentPassword"
+                 placeholder="Enter current password">
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label">New username</label>
+          <input type="text" class="form-control"
+                 [formControl]="usernameForm.controls.newUsername"
+                 placeholder="New username">
+        </div>
+      </div>
+
+      <button class="btn btn-primary mt-3" [disabled]="busy()" (click)="onChangeUsername()">
+        {{ busy() ? 'Updating…' : 'Update username' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Change password -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Change password</h5>
+
+      <div class="row g-3">
+        <div class="col-12 col-md-4">
+          <label class="form-label">Current password</label>
+          <input type="password" class="form-control"
+                 [formControl]="passwordForm.controls.currentPassword"
+                 placeholder="Enter current password">
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="form-label">New password</label>
+          <input type="password" class="form-control"
+                 [formControl]="passwordForm.controls.newPassword"
+                 placeholder="Min 8 characters">
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="form-label">Confirm new password</label>
+          <input type="password" class="form-control"
+                 [formControl]="passwordForm.controls.confirm"
+                 placeholder="Repeat new password">
+        </div>
+      </div>
+
+      <button class="btn btn-primary mt-3" [disabled]="busy()" (click)="onChangePassword()">
+        {{ busy() ? 'Updating…' : 'Update password' }}
+      </button>
+
+      <p class="text-muted mt-2 mb-0">For security, you’ll be signed out after changing your password.</p>
+    </div>
+  </div>
+
+  <!-- Self-delete -->
+  <div class="card shadow-sm mb-5">
+    <div class="card-body">
+      <h5 class="card-title text-danger">Delete my account</h5>
+      <ol class="mb-3">
+        <li>This permanently deletes your account and related data.</li>
+        <li>You will be signed out immediately after deletion.</li>
+      </ol>
+      <label class="form-label fw-semibold">
+        Type <code>{{ confirmPhraseRequired }}</code> to confirm:
+      </label>
+      <input type="text" class="form-control"
+             [formControl]="selfForm.controls.confirmPhrase"
+             placeholder="delete my account">
+
+      <button class="btn btn-danger mt-3" [disabled]="busy()" (click)="onDeleteMe()">
+        {{ busy() ? 'Deleting…' : 'Delete my account' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Admin quick panel -->
+  <div class="card shadow-sm" *ngIf="isAdmin()">
+    <div class="card-body">
+      <h5 class="card-title">Admin: Delete user by ID</h5>
+      <div class="d-flex align-items-end gap-2">
+        <div style="max-width: 220px; width: 100%;">
+          <label class="form-label">User ID</label>
+          <input type="number" class="form-control" placeholder="e.g. 42">
+        </div>
+        <!-- You already have admin delete elsewhere; kept page focused on self ops -->
+      </div>
+      <p class="text-muted mt-2 mb-0">Admin delete-by-id available elsewhere in your UI.</p>
+    </div>
+  </div>
+</div>
