@@ -1,5 +1,7 @@
 package com.example.pmapp.service;
 
+
+import com.example.pmapp.MaterialMapper;
 import com.example.pmapp.dto.MaterialRequest;
 import com.example.pmapp.dto.MaterialResponse;
 import com.example.pmapp.model.Material;
@@ -10,44 +12,60 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-/**
- * Service encapsulating CRUD operations on materials.  Creation and
- * deletion are restricted to administrators.
- */
 @Service
 public class MaterialService {
-    private final MaterialRepository materialRepository;
-
-    public MaterialService(MaterialRepository materialRepository) {
-        this.materialRepository = materialRepository;
-    }
+    private final MaterialRepository repo;
+    public MaterialService(MaterialRepository repo) { this.repo = repo; }
 
     @Transactional(readOnly = true)
     public List<MaterialResponse> listMaterials() {
-        return materialRepository.findAll().stream()
-                .map(m -> new MaterialResponse(m.getId(), m.getName(), m.getMarketId()))
-                .collect(Collectors.toList());
+        return repo.findAll().stream().map(this::toResponse).toList();
     }
 
+    // MaterialService.java (snippet)
     @Transactional
     public MaterialResponse createMaterial(User caller, MaterialRequest request) {
         if (caller.getRole() != Role.ADMIN) {
             throw new IllegalArgumentException("Only administrators can create materials");
         }
-        Material material = new Material();
-        material.setName(request.getName());
-        material.setMarketId(request.getMarketId());
-        material = materialRepository.save(material);
-        return new MaterialResponse(material.getId(), material.getName(), material.getMarketId());
+        Material m = new Material();
+        m.setName(request.getName());
+        m.setMarketId(request.getMarketId());
+        m.setSeller(request.getSeller());
+        // write into entity's `materialPicture`
+        m.setMaterialPicture(request.getPictureUrl());
+
+        m = repo.save(m);
+        return MaterialMapper.toResponse(m);
     }
 
+// MaterialService.java (snippet)
+
+
+
+
+    @Transactional(readOnly = true)
+    public List<MaterialResponse> listAll() {
+        return repo.findAll()
+                .stream()
+                .map(MaterialMapper::toResponse)  // or just .map(toResponse) if you import static
+                .toList();
+    }
+
+
     @Transactional
-    public void deleteMaterial(User caller, Integer id) {
+    public void deleteMaterial(User caller, Long id) {
         if (caller.getRole() != Role.ADMIN) {
             throw new IllegalArgumentException("Only administrators can delete materials");
         }
-        materialRepository.deleteById(id);
+        repo.deleteById(id);
+    }
+
+    private MaterialResponse toResponse(Material m) {
+        System.out.println("Material ID: " + m.getId() + ", Seller: " + m.getSeller() + ", Material Picture: " + m.getMaterialPicture());
+        return new MaterialResponse(
+                m.getId(), m.getName(), m.getMarketId(), m.getSeller(), m.getMaterialPicture()
+        );
     }
 }

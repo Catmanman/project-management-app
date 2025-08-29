@@ -1,54 +1,134 @@
 <div class="row">
-  <!-- Materials listing section with a soft panel and wood‑tone headings -->
+  <!-- Materials listing section with a soft panel and wood-tone headings -->
   <div class="col-md-8" style="background-color:#fdf7f2; border:1px solid #d1bfa4; border-radius:8px; padding:1rem; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
-  <h2 style="color:#4b3a2c; font-weight:600;">Materials</h2>
-  <!-- Search box for filtering materials -->
-  <div class="mb-3">
-    <input type="text" class="form-control" placeholder="Search materials…"
-           (input)="onSearchChange($event.target.value)"
-           style="background-color:#fffaf4; border-color:#d1bfa4; color:#4b3a2c;" />
+    <h2 style="color:#4b3a2c; font-weight:600;">Materials</h2>
+
+    <!-- Search box for filtering materials -->
+    <div class="mb-3">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Search materials…"
+        (input)="onSearchChange($event.target.value)"
+        style="background-color:#fffaf4; border-color:#d1bfa4; color:#4b3a2c;"
+      />
+    </div>
+
+    <table class="table table-striped" *ngIf="items.length > 0; else noMaterials"
+           style="background-color:#fdf7f2; border:1px solid #d1bfa4;">
+      <thead style="background-color:#e8dcc8; color:#4b3a2c;">
+        <tr>
+          <th>Seller</th>
+          <th>Name</th>
+          <th>Market ID</th>
+          <th>Picture</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- trackBy optional but helps performance -->
+        <tr *ngFor="let material of filteredItems; trackBy: trackById">
+          <td>
+            <img
+              [src]="imageSrc(material)"
+              [alt]="material.name"
+              style="width:60px; height:60px; object-fit:cover; border-radius:6px; border:1px solid #d1bfa4;"
+            >
+          </td>
+          <td>{{ material.name }}</td>
+          <td>{{ material.marketId }}</td>
+          <td>
+            <ng-container *ngIf="sellerLogo(material.seller) as logo; else sellerText">
+              <img
+                [src]="logo"
+                [alt]="material.seller || 'Seller'"
+                style="width:50px; height:50px; object-fit:contain;"
+              >
+            </ng-container>
+            <ng-template #sellerText>
+              {{ material.seller }}
+            </ng-template>
+          </td>
+          <td>
+            <!-- Delete button uses a warm brick tone consistent with the palette -->
+            <button
+              class="btn btn-sm btn-danger"
+              (click)="remove(material.id)"
+              style="background-color:#b7410e; border-color:#a6360a; color:#ffffff;"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ng-template #noMaterials>
+      <p>No materials yet.</p>
+    </ng-template>
   </div>
-  <table class="table table-striped" *ngIf="items.length > 0; else noMaterials"
-         style="background-color:#fdf7f2; border:1px solid #d1bfa4;">
-    <thead style="background-color:#e8dcc8; color:#4b3a2c;">
-      <tr>
-        <th>Name</th>
-        <th>Market ID</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let material of filteredItems">
-        <td>{{ material.name }}</td>
-        <td>{{ material.marketId }}</td>
-        <td>
-          <!-- Delete button uses a warm brick tone consistent with the palette -->
-          <button class="btn btn-sm btn-danger" (click)="remove(material.id)" style="background-color:#b7410e; border-color:#a6360a; color:#ffffff;">Delete</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <ng-template #noMaterials>
-    <p>No materials yet.</p>
-  </ng-template>
-</div>
+
+  <!-- Add Material Form -->
   <div class="col-md-4" style="background-color:#fdf7f2; border:1px solid #d1bfa4; border-radius:8px; padding:1rem; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
     <h2 style="color:#4b3a2c; font-weight:600;">Add Material</h2>
+
     <form [formGroup]="form" (ngSubmit)="add()">
       <div class="mb-3">
         <label class="form-label" style="color:#4b3a2c;">Name</label>
-        <input type="text" class="form-control" formControlName="name"
-               style="background-color:#fffaf4; border-color:#d1bfa4; color:#4b3a2c;" />
+        <input
+          type="text"
+          class="form-control"
+          formControlName="name"
+          style="background-color:#fffaf4; border-color:#d1bfa4; color:#4b3a2c;"
+        />
       </div>
+
       <div class="mb-3">
         <label class="form-label" style="color:#4b3a2c;">Market ID</label>
-        <input type="text" class="form-control" formControlName="marketId"
-               style="background-color:#fffaf4; border-color:#d1bfa4; color:#4b3a2c;" />
+        <input
+          type="text"
+          class="form-control"
+          formControlName="marketId"
+          style="background-color:#fffaf4; border-color:#d1bfa4; color:#4b3a2c;"
+        />
       </div>
-      <button type="submit" class="btn btn-primary" [disabled]="loading"
-              style="background-color:#6f4e37; border-color:#6f4e37; color:#ffffff;">Add Material</button>
+
+      <div class="mb-3">
+        <label class="form-label" style="color:#4b3a2c;">Seller</label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="seller"
+          placeholder="e.g. ekskluziv"
+          style="background-color:#fffaf4; border-color:#d1bfa4; color:#4b3a2c;"
+        />
+        <small style="color:#7a5b3c;">
+          If a logo exists at <code>assets/images/producers/&lt;seller&gt;.png</code>, it will be shown automatically.
+        </small>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" style="color:#4b3a2c;">Picture URL</label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="pictureUrl"
+          placeholder="e.g. https://example.com/image.jpg or assets/images/default_material_png/hammer.png"
+          style="background-color:#fffaf4; border-color:#d1bfa4; color:#4b3a2c;"
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="loading"
+        style="background-color:#6f4e37; border-color:#6f4e37; color:#ffffff;"
+      >
+        Add Material
+      </button>
       <span *ngIf="loading" class="ms-2 spinner-border spinner-border-sm" role="status"></span>
     </form>
+
     <p class="mt-2" style="color:#7a5b3c;">Only administrators can add or remove materials.</p>
   </div>
 </div>

@@ -6,6 +6,8 @@ export interface Material {
   id: number;
   name: string;
   marketId: string;
+  seller: string;
+  pictureUrl: string;
 }
 
 @Injectable({ providedIn: 'root' })

@@ -1,15 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CommonModule, NgIf, NgFor, DatePipe, CurrencyPipe } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Project, ProjectService } from '../../services/project.service';
 import { Material, MaterialService } from '../../services/material.service';
 import { ProjectMaterialCreate, ProjectMaterialRow, ProjectMaterialService } from '../../services/project-material.service';
+import { transliterate } from 'app/utils/transliterate';
 
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgIf, NgFor, RouterLink, DatePipe, CurrencyPipe],
+  imports: [CommonModule, ReactiveFormsModule, DatePipe],
   templateUrl: './project-detail.component.html'
 })
 export class ProjectDetailComponent implements OnInit {
@@ -18,6 +19,13 @@ export class ProjectDetailComponent implements OnInit {
 
   materials: Material[] = [];
   /**
+   * Search terms for filtering materials in the datalist.
+   * latinTerm stores the raw input; searchTerm stores the Cyrillic transliteration.
+   */
+  latinTerm = '';
+  searchTerm = '';
+
+  /**
    * When using the datalist search, users type a composite string (name and
    * market ID) to select a material.  This helper is used to build that
    * display string.
@@ -25,8 +33,8 @@ export class ProjectDetailComponent implements OnInit {
   formatMaterialOption(m: Material): string {
     return `${m.name} (${m.marketId})`;
   }
-  items: ProjectMaterialRow[] = [];
 
+  items: ProjectMaterialRow[] = [];
   form!: FormGroup;
   loading = false;
 
@@ -66,17 +74,32 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   /**
-   * Initialise the edit form with the current project's metadata.  Converts
-   * existing ISO timestamp strings to values compatible with the date picker.
+   * Filtered materials for the datalist: matches on Cyrillic (transliterated)
+   * or Latin (original) in name, plus Latin in marketId.
    */
-  initEditForm() {
-    // Extract only the date portion (YYYY-MM-DD) for the date picker.
-    const est = this.project?.estimatedEnd ? this.project.estimatedEnd.slice(0, 10) : '';
-    const finished = !!this.project?.finishedAt;
-    this.editForm = this.fb.group({
-      estimatedEnd: [est],
-      finished: [finished]
+  get filteredMaterials(): Material[] {
+    const cyrTerm = this.searchTerm;
+    const latTerm = this.latinTerm;
+    if (!cyrTerm && !latTerm) return this.materials;
+
+    return this.materials.filter(m => {
+      const name = m.name.toLowerCase();
+      const market = m.marketId.toLowerCase();
+      const matchesName =
+        (cyrTerm && name.includes(cyrTerm)) || (latTerm && name.includes(latTerm));
+      const matchesMarket = latTerm && market.includes(latTerm);
+      return matchesName || matchesMarket;
     });
+  }
+
+  /**
+   * Handle typing in the datalist input: keep both raw (Latin) and
+   * transliterated (Cyrillic) terms in lowercase for matching.
+   */
+  onMaterialInput(term: string) {
+    const t = (term ?? '').toLowerCase();
+    this.latinTerm = t;
+    this.searchTerm = transliterate(t).toLowerCase();
   }
 
   /**
@@ -92,27 +115,37 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   /**
-   * Persist changes to the project's estimated end and finished status.  If
-   * finished is checked the current time is used for the finishedAt
-   * timestamp; otherwise it is cleared.  The estimated end date is
-   * converted to a YYYY-MM-DDT00:00:00 string so no timezone shifting occurs.
+   * Initialise the edit form with the current project's metadata.  Converts
+   * existing ISO timestamp strings to values compatible with the date picker.
+   */
+  initEditForm() {
+    // Extract only the date portion (YYYY-MM-DD) for the date picker.
+    const est = this.project?.estimatedEnd ? this.project.estimatedEnd.slice(0, 10) : '';
+    const finished = !!this.project?.finishedAt;
+    this.editForm = this.fb.group({
+      estimatedEnd: [est],
+      finished: [finished]
+    });
+  }
+
+  /**
+   * Persist changes to the project's estimated end and finished status.
    */
   saveProject() {
     if (!this.project) return;
     const estVal: string = this.editForm.value.estimatedEnd;
     let estimatedEnd: string | null = null;
     if (estVal) {
-      // For a date input, append midnight time in ISO format without timezone.
       estimatedEnd = `${estVal}T00:00:00`;
     }
     const finished: boolean = this.editForm.value.finished;
     let finishedAt: string | null = null;
     if (finished) {
       const now = new Date();
-      // Build a local ISO string (without timezone) to avoid timezone offsets
       const pad = (n: number) => n.toString().padStart(2, '0');
-      finishedAt = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}` +
-                   `T${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+      finishedAt =
+        `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}` +
+        `T${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
     }
     const payload = {
       name: this.project.name,
@@ -123,7 +156,6 @@ export class ProjectDetailComponent implements OnInit {
     this.loading = true;
     this.projectsApi.update(this.projectId, payload).subscribe({
       next: updated => {
-        // update local project and reinitialise edit form
         this.project = updated as any;
         this.initEditForm();
         this.loading = false;
@@ -147,7 +179,6 @@ export class ProjectDetailComponent implements OnInit {
     this.loading = true;
     this.pmApi.create(this.projectId, payload).subscribe({
       next: created => {
-        // If upsert, replace existing; otherwise push
         const idx = this.items.findIndex(x => x.materialId === created.materialId);
         if (idx >= 0) this.items[idx] = created; else this.items = [...this.items, created];
         this.form.reset({ materialId: '', amount: 0 });

@@ -19,7 +19,7 @@ export interface Project {
  */
 @Injectable({ providedIn: 'root' })
 export class ProjectService {
-  private readonly base = 'http://localhost:8080/api/projects';
+  private readonly base = 'http://localhost:8080/api/projects'; 
   constructor(private http: HttpClient) {}
   list(): Observable<Project[]> {
     return this.http.get<Project[]>(this.base);

@@ -43,7 +43,7 @@ export class LoginComponent implements OnInit {
     const { username, password } = this.form.value;
     this.auth.login(username, password).subscribe({
       next: () => {
-        this.loading = false;
+        this.loading = true;
         // Redirect to returnUrl if present, otherwise default
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/projects';
         this.router.navigateByUrl(returnUrl);

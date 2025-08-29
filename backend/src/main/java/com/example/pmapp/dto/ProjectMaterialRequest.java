@@ -8,18 +8,18 @@ import jakarta.validation.constraints.NotNull;
  */
 public class ProjectMaterialRequest {
     @NotNull
-    private Integer materialId;
+    private Long materialId;
 
     @Min(0)
     private double amount;
 
     public ProjectMaterialRequest() {}
 
-    public Integer getMaterialId() {
+    public Long getMaterialId() {
         return materialId;
     }
 
-    public void setMaterialId(Integer materialId) {
+    public void setMaterialId(Long materialId) {
         this.materialId = materialId;
     }
 

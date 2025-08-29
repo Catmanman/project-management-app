@@ -5,14 +5,14 @@ package com.example.pmapp.dto;
  */
 public class ProjectMaterialResponse {
     private Integer id;
-    private Integer materialId;
+    private Long materialId;
     private String materialName;
     private String marketId;
     private double amount;
 
     public ProjectMaterialResponse() {}
 
-    public ProjectMaterialResponse(Integer id, Integer materialId, String materialName, String marketId, double amount) {
+    public ProjectMaterialResponse(Integer id, Long materialId, String materialName, String marketId, double amount) {
         this.id = id;
         this.materialId = materialId;
         this.materialName = materialName;
@@ -23,8 +23,8 @@ public class ProjectMaterialResponse {
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 
-    public Integer getMaterialId() { return materialId; }
-    public void setMaterialId(Integer materialId) { this.materialId = materialId; }
+    public Long getMaterialId() { return materialId; }
+    public void setMaterialId(Long materialId) { this.materialId = materialId; }
 
     public String getMaterialName() { return materialName; }
     public void setMaterialName(String materialName) { this.materialName = materialName; }

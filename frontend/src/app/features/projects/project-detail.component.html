@@ -10,19 +10,19 @@
     <div *ngIf="project; else loadingTpl">
       <div class="card mb-3" style="border:1px solid #d1bfa4; background-color:#fdf7f2; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
         <div class="card-body" style="background-color:#fdf7f2;">
-          <h5 class="card-title mb-2" style="color:#4b3a2c; font-weight:600;">{{ project?.name }}</h5>
-          <p class="card-text" style="color:#5b4332;">{{ project?.description }}</p>
+          <h5 class="card-title mb-2" style="color:#4b3a2c; font-weight:600;">{{ project.name }}</h5>
+          <p class="card-text" style="color:#5b4332;">{{ project.description }}</p>
           <div class="row small text-muted">
             <div class="col">
-              <b>Created:</b> {{ project?.createdAt | date:'short' }}
+              <b>Created:</b> {{ project.createdAt | date:'short' }}
             </div>
             <div class="col">
               <b>Estimated End:</b>
-              {{ project?.estimatedEnd ? (project?.estimatedEnd | date:'short') : '-' }}
+              {{ project.estimatedEnd ? (project.estimatedEnd | date:'short') : '-' }}
             </div>
             <div class="col">
               <b>Finished:</b>
-              {{ project?.finishedAt ? (project?.finishedAt | date:'short') : '-' }}
+              {{ project.finishedAt ? (project.finishedAt | date:'short') : '-' }}
             </div>
           </div>
 
